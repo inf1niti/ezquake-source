@@ -3827,6 +3827,22 @@ void SV_PostRunCmd(void)
 
 			if (!ent->impulse) {
 				if (switch_to_best_weapon) {
+					// // special consideration for grappling hook
+					// if (best_impulse == 22) {
+					// 	char new_wrank[16] = { 0 };
+					// 	new_wrank[0] = '0' + best_impulse;
+					// 	if (hide_impulse)
+					// 		new_wrank[1] = '0' + hide_impulse;
+
+					// 	ent->impulse = best_impulse;
+					// 	impulse_set = true;
+					// 	SV_UserSetWeaponRank(sv_client, new_wrank);
+					// }
+
+					if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
+						SV_ClientPrintf(sv_client, PRINT_HIGH, "What's my best impulse?? - %d\n", best_impulse);
+					}
+
 					if (best_impulse && ent->weapon != best_weapon) {
 						if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
 							SV_ClientPrintf(sv_client, PRINT_HIGH, "Switching to best weapon: %d\n", best_impulse);
@@ -3845,17 +3861,6 @@ void SV_PostRunCmd(void)
 				}
 			}
 			else {
-				// special consideration for grappling hook
-				if (best_impulse == 22) {
-					char new_wrank[16] = { 0 };
-					new_wrank[0] = '0' + best_impulse;
-					if (hide_impulse)
-						new_wrank[1] = '0' + hide_impulse;
-
-					ent->impulse = best_impulse;
-					impulse_set = true;
-					SV_UserSetWeaponRank(sv_client, new_wrank);
-				}
 				if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
 					SV_ClientPrintf(sv_client, PRINT_HIGH, "Non-wp impulse: %f\n", ent->impulse);
 				}
