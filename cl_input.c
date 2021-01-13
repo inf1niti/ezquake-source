@@ -471,7 +471,7 @@ static int IN_BestWeapon_Common(int implicit, int* weapon_order)
 	for (i = MAXWEAPONS - 1; i >= 0; i--)
 	{
 		imp = weapon_order[i];
-		if (imp < 1 || imp > 8 && imp != 22)
+		if (imp < 1 || (imp > 8 && imp != 22))
 			continue;
 
 		switch (imp)
