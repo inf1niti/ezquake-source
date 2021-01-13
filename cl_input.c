@@ -1012,8 +1012,8 @@ void IN_SendServerSideWeaponSwitch(sizebuf_t* buffer)
 	}
 	if (cl_pext_serversideweapon.integer) {
 		for (i = 0; i < MAXWEAPONS; i += 2) {
-			int lhs = bound(0, cl.weapon_order[i], 15);
-			int rhs = bound(0, cl.weapon_order[i + 1], 15);
+			int lhs = bound(0, cl.weapon_order[i], 22);
+			int rhs = bound(0, cl.weapon_order[i + 1], 22);
 
 			MSG_WriteByte(buffer, (lhs << 4) | rhs);
 			if (!lhs || !rhs) {
