@@ -3793,6 +3793,10 @@ void SV_PostRunCmd(void)
 			hiding = (sv_client->weaponswitch_wasfiring && !firing && hide_impulse);
 			sv_client->weaponswitch_wasfiring |= firing;
 
+			if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
+				SV_ClientPrintf(sv_client, PRINT_HIGH, "What's my best impulse?? - %d\n", best_impulse);
+			}
+
 			if (switch_to_best_weapon && sv_client->weaponswitch_pending && sv_client->weaponswitch_forgetorder) {
 				char new_wrank[16] = { 0 };
 
@@ -3838,10 +3842,6 @@ void SV_PostRunCmd(void)
 					// 	impulse_set = true;
 					// 	SV_UserSetWeaponRank(sv_client, new_wrank);
 					// }
-
-					if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
-						SV_ClientPrintf(sv_client, PRINT_HIGH, "What's my best impulse?? - %d\n", best_impulse);
-					}
 
 					if (best_impulse && ent->weapon != best_weapon) {
 						if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
