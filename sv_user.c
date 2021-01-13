@@ -3845,7 +3845,7 @@ void SV_PostRunCmd(void)
 
 					if (best_impulse && ent->weapon != best_weapon) {
 						if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
-							SV_ClientPrintf(sv_client, PRINT_HIGH, "Switching to best weapon: %d\n", best_impulse);
+							SV_ClientPrintf(sv_client, PRINT_HIGH, "Switching to best weaponzzz: %d\n", best_impulse);
 						}
 
 						ent->impulse = best_impulse;
@@ -3854,7 +3854,7 @@ void SV_PostRunCmd(void)
 				}
 				else if (hiding && ent->weapon != hide_weapon) {
 					if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
-						SV_ClientPrintf(sv_client, PRINT_HIGH, "Hiding: %d\n", hide_impulse);
+						SV_ClientPrintf(sv_client, PRINT_HIGH, "Hidingzzz: %d\n", hide_impulse);
 					}
 					ent->impulse = hide_impulse;
 					impulse_set = true;
@@ -3862,7 +3862,7 @@ void SV_PostRunCmd(void)
 			}
 			else {
 				if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
-					SV_ClientPrintf(sv_client, PRINT_HIGH, "Non-wp impulse: %f\n", ent->impulse);
+					SV_ClientPrintf(sv_client, PRINT_HIGH, "Non-wp impulsezzz: %f\n", ent->impulse);
 				}
 			}
 			sv_client->weaponswitch_pending = (ent->health >= 1.0f);
