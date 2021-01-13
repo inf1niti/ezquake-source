@@ -507,6 +507,7 @@ static int IN_BestWeapon_Common(int implicit, int* weapon_order)
 			case 8:
 				if (items & IT_LIGHTNING && cl.stats[STAT_CELLS] >= 1)
 					best = 8;
+					break;
 			case 22:
 				if (items & IT_HOOK)
 					best = 22;

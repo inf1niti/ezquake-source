@@ -3670,6 +3670,9 @@ void SV_ServerSideWeaponRank(client_t* client, int* best_weapon, int* best_impul
 	*best_impulse = 0;
 
 	for (i = 0; i < sizeof(client->weaponswitch_priority) / sizeof(client->weaponswitch_priority[0]); ++i) {
+		if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
+			SV_ClientPrintf(sv_client, PRINT_HIGH, "Loopig through weapon priority: index %d is: impulse %d\n", i, client->weaponswitch_priority[i]);
+		}
 		switch (client->weaponswitch_priority[i]) {
 			case 0:
 				// end of list
@@ -3739,7 +3742,10 @@ void SV_ServerSideWeaponRank(client_t* client, int* best_weapon, int* best_impul
 				break;
 		}
 	}
-
+	
+	if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
+		SV_ClientPrintf(sv_client, PRINT_HIGH, "Returning best impulse: impulse %d\n", best_impulse);
+	}
 	return;
 }
 #endif
