@@ -3671,7 +3671,7 @@ void SV_ServerSideWeaponRank(client_t* client, int* best_weapon, int* best_impul
 
 	for (i = 0; i < sizeof(client->weaponswitch_priority) / sizeof(client->weaponswitch_priority[0]); ++i) {
 		if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
-			SV_ClientPrintf(sv_client, PRINT_HIGH, "Loopig through weapon priority: index %d is: impulse %d\n", i, client->weaponswitch_priority[i]);
+			SV_ClientPrintf(sv_client, PRINT_HIGH, "Loopig through weapon priority: impulse %d\n", client->weaponswitch_priority[i]);
 		}
 		switch (client->weaponswitch_priority[i]) {
 			case 0:
@@ -3845,6 +3845,11 @@ void SV_PostRunCmd(void)
 				}
 			}
 			else {
+				// special consideration for grappling hook
+				if (best_impulse == 22) {
+					ent->impulse = best_impulse;
+					impulse_set = true;
+				}
 				if (Info_Get(&sv_client->_userinfo_ctx_, "dev")[0] == '1') {
 					SV_ClientPrintf(sv_client, PRINT_HIGH, "Non-wp impulse: %f\n", ent->impulse);
 				}
