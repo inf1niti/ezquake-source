@@ -1529,6 +1529,8 @@ void CL_ParsePlayerinfo (void)
 #ifdef FTE_PEXT_TRANS
 		if (flags & PF_TRANS_Z && cls.fteprotocolextensions & FTE_PEXT_TRANS)
 			state->alpha = MSG_ReadByte();
+		else
+			state->alpha = 0;
 #endif
 
 		if (cl.z_ext & Z_EXT_PM_TYPE)
@@ -1711,6 +1713,7 @@ void CL_AddFlagModels (entity_t *ent, int team)
 	newent.model = cl.model_precache[cl_modelindices[mi_flag]];
 	newent.skinnum = team;
 	newent.colormap = vid.colormap;
+	newent.alpha = ent->alpha > 0.0f ? ent->alpha : 0.0f;
 
 	AngleVectors (ent->angles, v_forward, v_right, NULL);
 	v_forward[2] = -v_forward[2]; // reverse z component
@@ -1875,7 +1878,11 @@ static void CL_LinkPlayers(void)
 		}
 
 		// VULT MOTION TRAILS
+#ifdef FTE_PEXT_TRANS
+		ent.alpha = state->alpha ? (float)state->alpha / 254.0f : 0.0f;
+#else
 		ent.alpha = 0;
+#endif
 		// The player object never gets added.
 		if (j == cl.playernum) {
 			// VULT CAMERAS
