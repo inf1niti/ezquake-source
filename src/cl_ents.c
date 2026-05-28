@@ -1675,7 +1675,7 @@ guess_pm_type:
 }
 
 // Called when the CTF flags are set
-void CL_AddFlagModels (entity_t *ent, int team) 
+void CL_AddFlagModels (entity_t *ent, int team, float alpha)
 {
 	int i;
 	float f;
@@ -1713,7 +1713,7 @@ void CL_AddFlagModels (entity_t *ent, int team)
 	newent.model = cl.model_precache[cl_modelindices[mi_flag]];
 	newent.skinnum = team;
 	newent.colormap = vid.colormap;
-	newent.alpha = ent->alpha > 0.0f ? ent->alpha : 0.0f;
+	newent.alpha = (alpha > 0.0f && alpha < 1.0f) ? alpha : 0.0f;
 
 	AngleVectors (ent->angles, v_forward, v_right, NULL);
 	v_forward[2] = -v_forward[2]; // reverse z component
@@ -1793,7 +1793,7 @@ void CL_StorePausePredictionLocations(void)
 static void CL_LinkPlayers(void)
 {
 	int j, msec, i, flicker, oldphysent;
-	float *org, distance;
+	float *org, distance, carried_flag_alpha;
 	vec3_t tmp, end, diff;
 	double playertime = CL_PlayerTime();
 	player_info_t *info;
@@ -1883,6 +1883,7 @@ static void CL_LinkPlayers(void)
 #else
 		ent.alpha = 0;
 #endif
+		carried_flag_alpha = ent.alpha;
 		// The player object never gets added.
 		if (j == cl.playernum) {
 			// VULT CAMERAS
@@ -1940,6 +1941,9 @@ static void CL_LinkPlayers(void)
 		}
 
 		ent.skinnum = state->skinnum;
+		if (state->modelindex == cl_modelindices[mi_eyes]) {
+			ent.alpha = 0.0f;
+		}
 		ent.colormap = info->translations;
 		ent.scoreboard = (state->modelindex == cl_modelindices[mi_player]) ? info : NULL;
 		ent.frame = state->frame;
@@ -1986,7 +1990,7 @@ static void CL_LinkPlayers(void)
 		}
 
 		if (state->effects & (EF_FLAG1|EF_FLAG2))
-			CL_AddFlagModels (&ent, !!(state->effects & EF_FLAG2));
+			CL_AddFlagModels (&ent, !!(state->effects & EF_FLAG2), carried_flag_alpha);
 
 		// VULT CAMERAS
 		if (j == cl.playernum)
