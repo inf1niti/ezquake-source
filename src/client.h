@@ -83,6 +83,19 @@ enum {
 	dbg_antilag_position_set   = 4
 };
 
+typedef struct {
+	int      state;
+	vec3_t   origin;
+	vec3_t   anchor;
+	float    hook_time;
+	float    initial_length;
+	float    initial_radial_speed;
+	float    initial_tangential_speed;
+	float    initial_speed;
+	float    tension;
+	float    awaytime;
+} hook_state_t;
+
 // player_state_t is the information needed by a player entity
 // to do move prediction and to generate a drawable entity
 typedef struct 
@@ -123,6 +136,7 @@ typedef struct
 	vec3_t      rewind_origin;  // location antilag server has rewound to
 	vec3_t      client_origin;  // location client rendered the player
 	int         antilag_flags;  // bitmask: dbg_antilag_rewind_present | dbg_antilag_client_present
+	hook_state_t hookstate;
 } player_state_t;
 
 typedef enum {
@@ -221,6 +235,7 @@ typedef struct
 	qbool               invalid;                    // True if the packet_entities delta was invalid
 	int                 receivedsize;
 	int                 seq_when_received;
+	hook_state_t        hookstate[MAX_CLIENTS];
 
 	qbool               in_qwd;
 } frame_t;

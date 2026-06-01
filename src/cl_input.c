@@ -69,6 +69,7 @@ extern double physframetime;
 
 #define CL_INPUT_WEAPONHIDE() ((cl_weaponhide.integer == 1) \
 	|| ((cl_weaponhide.integer == 2) && (cl.deathmatch == 1)))
+#define IMP_HOOK 22
 
 /*
 ===============================================================================
@@ -274,6 +275,11 @@ static qbool IN_IsLastArgKeyCode(void)
 	return atoi(Cmd_Argv(Cmd_Argc() - 1)) >= 32;
 }
 
+static qbool IN_WeaponOrderIsHookOnly(int *weapon_order)
+{
+	return weapon_order[0] == IMP_HOOK && weapon_order[1] == 0;
+}
+
 static void IN_AntiRolloverFireKeyDown(int key_code)
 {
 	// Actual firing has already happened in +fire_ar handler, so just store here...
@@ -309,7 +315,7 @@ static void IN_AntiRolloverFireKeyUp(int key_code)
 			int prev = cl.ar_count - 1;
 
 			memcpy(cl.weapon_order, cl.ar_weapon_orders[prev], sizeof(cl.weapon_order));
-			in_impulse = IN_BestWeapon(false);
+			in_impulse = IN_WeaponOrderIsHookOnly(cl.weapon_order) ? IMP_HOOK : IN_BestWeapon(false);
 			KeyDown_common(&in_attack, NULL_KEY);
 		}
 		else {
@@ -356,7 +362,7 @@ void IN_FireDown(void)
 		cl.weapon_order[i - 1] = 0;
 	}
 
-	in_impulse = IN_BestWeapon(false);
+	in_impulse = IN_WeaponOrderIsHookOnly(cl.weapon_order) ? IMP_HOOK : IN_BestWeapon(false);
 
 	if (anti_rollover && key_code) {
 		KeyDown_common(&in_attack, NULL_KEY);
@@ -369,6 +375,10 @@ void IN_FireDown(void)
 
 static void IN_AttackUp_CommonHide(void)
 {
+	if (cl.stats[STAT_ACTIVEWEAPON] == IT_HOOK || IN_WeaponOrderIsHookOnly(cl.weapon_order)) {
+		return;
+	}
+
 	if (CL_INPUT_WEAPONHIDE()) 	{
 		if (cl_weaponhide_axe.integer) 		{
 			// always switch to axe because user wants to

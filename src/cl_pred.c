@@ -61,6 +61,15 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	pmove.pm_type = from->pm_type;
 	pmove.onground = from->onground;
 	pmove.cmd = *u;
+	pmove.hook_state = from->hookstate.state;
+	VectorCopy(from->hookstate.anchor, pmove.hook_anchor);
+	pmove.hook_time = from->hookstate.hook_time;
+	pmove.hook_initial_length = from->hookstate.initial_length;
+	pmove.hook_initial_radial_speed = from->hookstate.initial_radial_speed;
+	pmove.hook_initial_tangential_speed = from->hookstate.initial_tangential_speed;
+	pmove.hook_initial_speed = from->hookstate.initial_speed;
+	pmove.hook_tension = from->hookstate.tension;
+	pmove.hook_awaytime = from->hookstate.awaytime;
 
 #ifdef JSS_CAM
 	if (cam_lockdir.value) {
@@ -87,6 +96,10 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	VectorCopy (pmove.angles, to->viewangles);
 	VectorCopy (pmove.velocity, to->velocity);
 	to->onground = pmove.onground;
+	to->hookstate = from->hookstate;
+	to->hookstate.hook_time = pmove.hook_time;
+	to->hookstate.tension = pmove.hook_tension;
+	to->hookstate.awaytime = pmove.hook_awaytime;
 
 	to->weaponframe = from->weaponframe;
 }

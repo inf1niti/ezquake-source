@@ -1259,6 +1259,60 @@ void CL_LinkProjectiles (void)
 	}
 }
 
+#ifdef MVD_PEXT1_PREDICTED_HOOK
+static void CL_LinkPredictedHookSegment(vec3_t origin)
+{
+	entity_t ent;
+
+	if (cl_modelindices[mi_spike] == -1) {
+		return;
+	}
+
+	memset(&ent, 0, sizeof(ent));
+	ent.colormap = vid.colormap;
+	ent.model = cl.model_precache[cl_modelindices[mi_spike]];
+	VectorCopy(origin, ent.origin);
+	CL_AddEntity(&ent);
+}
+
+static void CL_LinkPredictedHooks(void)
+{
+	frame_t *frame;
+	int i;
+
+	if (!(cls.mvdprotocolextensions1 & MVD_PEXT1_PREDICTED_HOOK) || !cl.validsequence) {
+		return;
+	}
+
+	frame = &cl.frames[cl.validsequence & UPDATE_MASK];
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		hook_state_t *hookstate;
+		vec3_t player_origin;
+		vec3_t hook_delta;
+		vec3_t segment_origin;
+		int segment;
+
+		hookstate = &frame->hookstate[i];
+		if (hookstate->state == mvd_hook_inactive || hookstate->state == mvd_hook_cooldown) {
+			continue;
+		}
+
+		if (i == cl.playernum) {
+			VectorCopy(cl.simorg, player_origin);
+		}
+		else {
+			VectorCopy(frame->playerstate[i].origin, player_origin);
+		}
+
+		VectorSubtract(hookstate->origin, player_origin, hook_delta);
+		for (segment = 1; segment <= 4; segment++) {
+			VectorMA(player_origin, segment * 0.25f, hook_delta, segment_origin);
+			CL_LinkPredictedHookSegment(segment_origin);
+		}
+	}
+}
+#endif
+
 void SetupPlayerEntity(int num, player_state_t *state) 
 {
 	centity_t *cent;
@@ -2290,6 +2344,9 @@ void CL_EmitEntities (void)
 		CL_LinkPlayers();
 		CL_LinkPacketEntities();
 		CL_LinkProjectiles();
+#ifdef MVD_PEXT1_PREDICTED_HOOK
+		CL_LinkPredictedHooks();
+#endif
 	}
 
 	CL_UpdateTEnts();

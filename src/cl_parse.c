@@ -61,6 +61,9 @@ static void CL_ParseDamageDone(int size);
 static void CL_ParseDemoWeaponInstruction(int size);
 static void CL_ParseUserCommand(int size);
 #endif // MVD_PEXT1_HIDDEN_MESSAGES
+#ifdef MVD_PEXT1_PREDICTED_HOOK
+static void CL_ParseHookState(void);
+#endif
 
 void R_TranslatePlayerSkin (int playernum);
 
@@ -129,7 +132,7 @@ char *svc_strings[] = {
 	"svc_serverinfo",
 	"svc_updatepl",
 	"svc_nails2",
-	"NEW PROTOCOL",
+	"svc_mvd_hookstate",
 	"NEW PROTOCOL",
 	"NEW PROTOCOL",
 	"NEW PROTOCOL",
@@ -2003,6 +2006,10 @@ void CL_ParseClientdata (void)
 	cl.parsecount = newparsecount;
 	cl.parsecountmod = (cl.parsecount & UPDATE_MASK);
 	frame = &cl.frames[cl.parsecountmod];
+	memset(frame->hookstate, 0, sizeof(frame->hookstate));
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		memset(&frame->playerstate[i].hookstate, 0, sizeof(frame->playerstate[i].hookstate));
+	}
 
 	frame->receivedtime = cls.realtime;
 	if (cls.mvdplayback) {
@@ -4079,6 +4086,13 @@ void CL_ParseServerMessage (void)
 					CL_ParseProjectiles(true);
 					break;
 				}
+#ifdef MVD_PEXT1_PREDICTED_HOOK
+			case svc_mvd_hookstate:
+				{
+					CL_ParseHookState();
+					break;
+				}
+#endif
 			case svc_chokecount: // Some preceding packets were choked
 				{
 					i = MSG_ReadByte();
@@ -4238,6 +4252,45 @@ static void CL_InitialiseDemoMessageIfRequired(void)
 		SZ_Write(&cls.demomessage, net_message.data, 8);
 	}
 }
+
+#ifdef MVD_PEXT1_PREDICTED_HOOK
+static void CL_ParseHookState(void)
+{
+	int i;
+	int count;
+	frame_t *frame;
+
+	count = MSG_ReadByte();
+	frame = &cl.frames[cl.parsecountmod];
+
+	for (i = 0; i < count; i++) {
+		int playernum;
+		hook_state_t hookstate;
+
+		memset(&hookstate, 0, sizeof(hookstate));
+		playernum = MSG_ReadByte();
+		hookstate.state = MSG_ReadByte();
+		hookstate.origin[0] = MSG_ReadFloat();
+		hookstate.origin[1] = MSG_ReadFloat();
+		hookstate.origin[2] = MSG_ReadFloat();
+		hookstate.anchor[0] = MSG_ReadFloat();
+		hookstate.anchor[1] = MSG_ReadFloat();
+		hookstate.anchor[2] = MSG_ReadFloat();
+		hookstate.hook_time = MSG_ReadFloat();
+		hookstate.initial_length = MSG_ReadFloat();
+		hookstate.initial_radial_speed = MSG_ReadFloat();
+		hookstate.initial_tangential_speed = MSG_ReadFloat();
+		hookstate.initial_speed = MSG_ReadFloat();
+		hookstate.tension = MSG_ReadFloat();
+		hookstate.awaytime = MSG_ReadFloat();
+
+		if (playernum < MAX_CLIENTS) {
+			frame->hookstate[playernum] = hookstate;
+			frame->playerstate[playernum].hookstate = hookstate;
+		}
+	}
+}
+#endif
 
 #ifdef MVD_PEXT1_HIDDEN_MESSAGES
 // Hidden data packets (stuffed into mvd/qtv stream)

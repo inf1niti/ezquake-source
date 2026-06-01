@@ -567,6 +567,10 @@ unsigned int CL_SupportedMVDExtensions1(void)
 	}
 #endif
 
+#ifdef MVD_PEXT1_PREDICTED_HOOK
+	extensions_supported |= MVD_PEXT1_PREDICTED_HOOK;
+#endif
+
 	return extensions_supported;
 }
 #endif
