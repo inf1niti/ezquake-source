@@ -2006,10 +2006,22 @@ void CL_ParseClientdata (void)
 	cl.parsecount = newparsecount;
 	cl.parsecountmod = (cl.parsecount & UPDATE_MASK);
 	frame = &cl.frames[cl.parsecountmod];
-	memset(frame->hookstate, 0, sizeof(frame->hookstate));
-	for (i = 0; i < MAX_CLIENTS; i++) {
-		memset(&frame->playerstate[i].hookstate, 0, sizeof(frame->playerstate[i].hookstate));
+#ifdef MVD_PEXT1_PREDICTED_HOOK
+	if (cl.oldparsecount) {
+		frame_t *oldframe = &cl.frames[cl.oldparsecount & UPDATE_MASK];
+
+		memcpy(frame->hookstate, oldframe->hookstate, sizeof(frame->hookstate));
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			frame->playerstate[i].hookstate = oldframe->playerstate[i].hookstate;
+		}
 	}
+	else {
+		memset(frame->hookstate, 0, sizeof(frame->hookstate));
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			memset(&frame->playerstate[i].hookstate, 0, sizeof(frame->playerstate[i].hookstate));
+		}
+	}
+#endif
 
 	frame->receivedtime = cls.realtime;
 	if (cls.mvdplayback) {
@@ -4254,6 +4266,13 @@ static void CL_InitialiseDemoMessageIfRequired(void)
 }
 
 #ifdef MVD_PEXT1_PREDICTED_HOOK
+static void CL_ReadHookStateCoords(vec3_t origin)
+{
+	origin[0] = MSG_ReadCoord();
+	origin[1] = MSG_ReadCoord();
+	origin[2] = MSG_ReadCoord();
+}
+
 static void CL_ParseHookState(void)
 {
 	int i;
@@ -4265,28 +4284,41 @@ static void CL_ParseHookState(void)
 
 	for (i = 0; i < count; i++) {
 		int playernum;
-		hook_state_t hookstate;
+		int record_type;
+		hook_state_t ignored;
+		hook_state_t *hookstate;
 
-		memset(&hookstate, 0, sizeof(hookstate));
 		playernum = MSG_ReadByte();
-		hookstate.state = MSG_ReadByte();
-		hookstate.origin[0] = MSG_ReadFloat();
-		hookstate.origin[1] = MSG_ReadFloat();
-		hookstate.origin[2] = MSG_ReadFloat();
-		hookstate.anchor[0] = MSG_ReadFloat();
-		hookstate.anchor[1] = MSG_ReadFloat();
-		hookstate.anchor[2] = MSG_ReadFloat();
-		hookstate.hook_time = MSG_ReadFloat();
-		hookstate.initial_length = MSG_ReadFloat();
-		hookstate.initial_radial_speed = MSG_ReadFloat();
-		hookstate.initial_tangential_speed = MSG_ReadFloat();
-		hookstate.initial_speed = MSG_ReadFloat();
-		hookstate.tension = MSG_ReadFloat();
-		hookstate.awaytime = MSG_ReadFloat();
+		record_type = MSG_ReadByte();
+
+		hookstate = (playernum < MAX_CLIENTS) ? &frame->hookstate[playernum] : &ignored;
+		if (record_type == mvd_hook_record_clear) {
+			memset(hookstate, 0, sizeof(*hookstate));
+			if (playernum < MAX_CLIENTS) {
+				frame->playerstate[playernum].hookstate = *hookstate;
+			}
+			continue;
+		}
+
+		hookstate->state = MSG_ReadByte();
+		hookstate->flags = MSG_ReadByte();
+		CL_ReadHookStateCoords(hookstate->origin);
+		CL_ReadHookStateCoords(hookstate->anchor);
+
+		if (record_type == mvd_hook_record_full) {
+			hookstate->hook_time = MSG_ReadShort() / 1000.0f;
+			hookstate->initial_length = MSG_ReadShort();
+			hookstate->initial_radial_speed = MSG_ReadShort();
+			hookstate->initial_tangential_speed = MSG_ReadShort();
+			hookstate->initial_speed = MSG_ReadShort();
+			hookstate->tension = MSG_ReadShort() / 1000.0f;
+			hookstate->awaytime = MSG_ReadShort() / 1000.0f;
+			hookstate->min_pull = MSG_ReadShort();
+			hookstate->max_pull = MSG_ReadShort();
+		}
 
 		if (playernum < MAX_CLIENTS) {
-			frame->hookstate[playernum] = hookstate;
-			frame->playerstate[playernum].hookstate = hookstate;
+			frame->playerstate[playernum].hookstate = *hookstate;
 		}
 	}
 }

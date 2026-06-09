@@ -85,6 +85,7 @@ enum {
 
 typedef struct {
 	int      state;
+	int      flags;
 	vec3_t   origin;
 	vec3_t   anchor;
 	float    hook_time;
@@ -94,6 +95,8 @@ typedef struct {
 	float    initial_speed;
 	float    tension;
 	float    awaytime;
+	float    min_pull;
+	float    max_pull;
 } hook_state_t;
 
 // player_state_t is the information needed by a player entity
@@ -1066,7 +1069,7 @@ void CL_UpdateTEnts(void);
 
 // cl_ents.c
 typedef enum cl_modelindex_s {
-	mi_spike, mi_player, mi_eyes, mi_flag, mi_tf_flag, mi_tf_stan, mi_stag, mi_basrkey, mi_basbkey, mi_w_s_key, mi_w_g_key, mi_b_g_key, mi_b_s_key, mi_ff_flag, mi_harbflag, mi_princess, mi_explod1, mi_explod2, mi_h_player,
+	mi_spike, mi_hook_bit, mi_player, mi_eyes, mi_flag, mi_tf_flag, mi_tf_stan, mi_stag, mi_basrkey, mi_basbkey, mi_w_s_key, mi_w_g_key, mi_b_g_key, mi_b_s_key, mi_ff_flag, mi_harbflag, mi_princess, mi_explod1, mi_explod2, mi_h_player,
 	mi_gib1, mi_gib2, mi_gib3, mi_rocket, mi_grenade, mi_bubble,
 	mi_vaxe, mi_vbio, mi_vgrap, mi_vknife, mi_vknife2, mi_vmedi, mi_vspan,
 	mi_flame,	//joe: for changing flame/flame0 models

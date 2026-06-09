@@ -70,6 +70,8 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	pmove.hook_initial_speed = from->hookstate.initial_speed;
 	pmove.hook_tension = from->hookstate.tension;
 	pmove.hook_awaytime = from->hookstate.awaytime;
+	pmove.hook_min_pull = from->hookstate.min_pull;
+	pmove.hook_max_pull = from->hookstate.max_pull;
 
 #ifdef JSS_CAM
 	if (cam_lockdir.value) {

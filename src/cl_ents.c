@@ -62,6 +62,7 @@ void CL_InitEnts(void) {
 	memset(cl_modelnames, 0, sizeof(cl_modelnames));
 
 	cl_modelnames[mi_spike] = "progs/spike.mdl";
+	cl_modelnames[mi_hook_bit] = "progs/bit.mdl";
 	cl_modelnames[mi_player] = "progs/player.mdl";
 	cl_modelnames[mi_eyes] = "progs/eyes.mdl";
 	cl_modelnames[mi_flag] = "progs/flag.mdl";
@@ -1260,22 +1261,31 @@ void CL_LinkProjectiles (void)
 }
 
 #ifdef MVD_PEXT1_PREDICTED_HOOK
-static void CL_LinkPredictedHookSegment(vec3_t origin)
+static int CL_HookChainModelIndex(int flags)
+{
+	if ((flags & mvd_hook_flag_custom_model) && cl_modelindices[mi_hook_bit] != -1) {
+		return cl_modelindices[mi_hook_bit];
+	}
+	return cl_modelindices[mi_spike];
+}
+
+static void CL_LinkPredictedHookSegment(vec3_t origin, int modelindex, float alpha)
 {
 	entity_t ent;
 
-	if (cl_modelindices[mi_spike] == -1) {
+	if (modelindex == -1) {
 		return;
 	}
 
 	memset(&ent, 0, sizeof(ent));
 	ent.colormap = vid.colormap;
-	ent.model = cl.model_precache[cl_modelindices[mi_spike]];
+	ent.model = cl.model_precache[modelindex];
+	ent.alpha = alpha;
 	VectorCopy(origin, ent.origin);
 	CL_AddEntity(&ent);
 }
 
-static void CL_LinkPredictedHooks(void)
+static void CL_LinkHookChains(void)
 {
 	frame_t *frame;
 	int i;
@@ -1290,7 +1300,10 @@ static void CL_LinkPredictedHooks(void)
 		vec3_t player_origin;
 		vec3_t hook_delta;
 		vec3_t segment_origin;
+		float distance;
+		float alpha;
 		int segment;
+		int modelindex;
 
 		hookstate = &frame->hookstate[i];
 		if (hookstate->state == mvd_hook_inactive || hookstate->state == mvd_hook_cooldown) {
@@ -1305,9 +1318,16 @@ static void CL_LinkPredictedHooks(void)
 		}
 
 		VectorSubtract(hookstate->origin, player_origin, hook_delta);
-		for (segment = 1; segment <= 4; segment++) {
+		distance = VectorLength(hook_delta);
+		if (hookstate->state == mvd_hook_anchored && distance <= 100) {
+			continue;
+		}
+
+		modelindex = CL_HookChainModelIndex(hookstate->flags);
+		alpha = (hookstate->flags & mvd_hook_flag_stealth) ? 0.35f : 0.0f;
+		for (segment = 1; segment <= 3; segment++) {
 			VectorMA(player_origin, segment * 0.25f, hook_delta, segment_origin);
-			CL_LinkPredictedHookSegment(segment_origin);
+			CL_LinkPredictedHookSegment(segment_origin, modelindex, alpha);
 		}
 	}
 }
@@ -2345,7 +2365,7 @@ void CL_EmitEntities (void)
 		CL_LinkPacketEntities();
 		CL_LinkProjectiles();
 #ifdef MVD_PEXT1_PREDICTED_HOOK
-		CL_LinkPredictedHooks();
+		CL_LinkHookChains();
 #endif
 	}
 
