@@ -1269,7 +1269,7 @@ static int CL_HookChainModelIndex(int flags)
 	return cl_modelindices[mi_spike];
 }
 
-static void CL_LinkPredictedHookSegment(vec3_t origin, int modelindex, float alpha)
+static void CL_LinkPredictedHookSegment(vec3_t origin, vec3_t angles, int modelindex, float alpha)
 {
 	entity_t ent;
 
@@ -1282,6 +1282,7 @@ static void CL_LinkPredictedHookSegment(vec3_t origin, int modelindex, float alp
 	ent.model = cl.model_precache[modelindex];
 	ent.alpha = alpha;
 	VectorCopy(origin, ent.origin);
+	VectorCopy(angles, ent.angles);
 	CL_AddEntity(&ent);
 }
 
@@ -1300,6 +1301,7 @@ static void CL_LinkHookChains(void)
 		vec3_t player_origin;
 		vec3_t hook_delta;
 		vec3_t segment_origin;
+		vec3_t segment_angles;
 		float distance;
 		float alpha;
 		int segment;
@@ -1325,9 +1327,11 @@ static void CL_LinkHookChains(void)
 
 		modelindex = CL_HookChainModelIndex(hookstate->flags);
 		alpha = (hookstate->flags & mvd_hook_flag_stealth) ? 0.35f : 0.0f;
+		vectoangles(hook_delta, segment_angles);
+		segment_angles[PITCH] = -segment_angles[PITCH];
 		for (segment = 1; segment <= 3; segment++) {
 			VectorMA(player_origin, segment * 0.25f, hook_delta, segment_origin);
-			CL_LinkPredictedHookSegment(segment_origin, modelindex, alpha);
+			CL_LinkPredictedHookSegment(segment_origin, segment_angles, modelindex, alpha);
 		}
 	}
 }
