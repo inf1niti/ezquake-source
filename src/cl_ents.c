@@ -1308,12 +1308,16 @@ static void CL_LinkHookChains(void)
 		int modelindex;
 
 		hookstate = &frame->hookstate[i];
-		if (hookstate->state == mvd_hook_inactive || hookstate->state == mvd_hook_cooldown) {
+		if (hookstate->state == mvd_hook_inactive || hookstate->state == mvd_hook_retracting
+				|| hookstate->state == mvd_hook_cooldown) {
 			continue;
 		}
 
 		if (i == cl.playernum) {
 			VectorCopy(cl.simorg, player_origin);
+		}
+		else if (predicted_players[i].drawn) {
+			VectorCopy(predicted_players[i].drawn_origin, player_origin);
 		}
 		else {
 			VectorCopy(frame->playerstate[i].origin, player_origin);

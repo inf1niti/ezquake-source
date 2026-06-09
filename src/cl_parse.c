@@ -4290,6 +4290,9 @@ static void CL_ParseHookState(void)
 
 		playernum = MSG_ReadByte();
 		record_type = MSG_ReadByte();
+		if (record_type < mvd_hook_record_full || record_type > mvd_hook_record_clear) {
+			Host_Error("CL_ParseHookState: invalid hook record type %d", record_type);
+		}
 
 		hookstate = (playernum < MAX_CLIENTS) ? &frame->hookstate[playernum] : &ignored;
 		if (record_type == mvd_hook_record_clear) {
@@ -4302,6 +4305,9 @@ static void CL_ParseHookState(void)
 
 		hookstate->state = MSG_ReadByte();
 		hookstate->flags = MSG_ReadByte();
+		if (hookstate->state < mvd_hook_inactive || hookstate->state > mvd_hook_cooldown) {
+			Host_Error("CL_ParseHookState: invalid hook state %d", hookstate->state);
+		}
 		CL_ReadHookStateCoords(hookstate->origin);
 		CL_ReadHookStateCoords(hookstate->anchor);
 
