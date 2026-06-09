@@ -97,6 +97,7 @@ typedef struct {
 	float    awaytime;
 	float    min_pull;
 	float    max_pull;
+	float    pull_time;
 } hook_state_t;
 
 // player_state_t is the information needed by a player entity

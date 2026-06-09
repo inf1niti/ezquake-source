@@ -4321,6 +4321,7 @@ static void CL_ParseHookState(void)
 			hookstate->awaytime = MSG_ReadShort() / 1000.0f;
 			hookstate->min_pull = MSG_ReadShort();
 			hookstate->max_pull = MSG_ReadShort();
+			hookstate->pull_time = MSG_ReadShort() / 1000.0f;
 		}
 
 		if (playernum < MAX_CLIENTS) {

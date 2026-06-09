@@ -72,6 +72,7 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	pmove.hook_awaytime = from->hookstate.awaytime;
 	pmove.hook_min_pull = from->hookstate.min_pull;
 	pmove.hook_max_pull = from->hookstate.max_pull;
+	pmove.hook_pull_time = from->hookstate.pull_time;
 
 #ifdef JSS_CAM
 	if (cam_lockdir.value) {
@@ -102,6 +103,7 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	to->hookstate.hook_time = pmove.hook_time;
 	to->hookstate.tension = pmove.hook_tension;
 	to->hookstate.awaytime = pmove.hook_awaytime;
+	to->hookstate.pull_time = pmove.hook_pull_time;
 
 	to->weaponframe = from->weaponframe;
 }
