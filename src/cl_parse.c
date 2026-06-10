@@ -4286,7 +4286,9 @@ static void CL_ParseHookState(void)
 		int playernum;
 		int record_type;
 		hook_state_t ignored;
+		hook_state_t predicted;
 		hook_state_t *hookstate;
+		qbool preserve_prediction;
 
 		playernum = MSG_ReadByte();
 		record_type = MSG_ReadByte();
@@ -4294,7 +4296,11 @@ static void CL_ParseHookState(void)
 			Host_Error("CL_ParseHookState: invalid hook record type %d", record_type);
 		}
 
+		memset(&predicted, 0, sizeof(predicted));
 		hookstate = (playernum < MAX_CLIENTS) ? &frame->hookstate[playernum] : &ignored;
+		if (playernum < MAX_CLIENTS) {
+			predicted = *hookstate;
+		}
 		if (record_type == mvd_hook_record_clear) {
 			memset(hookstate, 0, sizeof(*hookstate));
 			if (playernum < MAX_CLIENTS) {
@@ -4308,6 +4314,9 @@ static void CL_ParseHookState(void)
 		if (hookstate->state < mvd_hook_inactive || hookstate->state > mvd_hook_cooldown) {
 			Host_Error("CL_ParseHookState: invalid hook state %d", hookstate->state);
 		}
+		preserve_prediction = playernum == cl.playernum
+				&& predicted.state == mvd_hook_anchored
+				&& hookstate->state == mvd_hook_anchored;
 		CL_ReadHookStateCoords(hookstate->origin);
 		CL_ReadHookStateCoords(hookstate->anchor);
 
@@ -4322,6 +4331,19 @@ static void CL_ParseHookState(void)
 			hookstate->min_pull = MSG_ReadShort();
 			hookstate->max_pull = MSG_ReadShort();
 			hookstate->pull_time = MSG_ReadShort() / 1000.0f;
+			if (preserve_prediction) {
+				hookstate->hook_time = predicted.hook_time;
+				hookstate->tension = predicted.tension;
+				hookstate->awaytime = predicted.awaytime;
+				hookstate->rope_length = predicted.rope_length;
+				hookstate->pull_time = predicted.pull_time;
+				hookstate->hold_blend = predicted.hold_blend;
+				hookstate->reel_blend = predicted.reel_blend;
+				hookstate->reel_pull_blend = predicted.reel_pull_blend;
+				hookstate->input_mode = predicted.input_mode;
+				hookstate->hold_washeld = predicted.hold_washeld;
+				hookstate->reel_washeld = predicted.reel_washeld;
+			}
 		}
 
 		if (playernum < MAX_CLIENTS) {
