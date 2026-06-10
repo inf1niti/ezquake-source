@@ -95,6 +95,7 @@ typedef struct {
 	float    initial_speed;
 	float    tension;
 	float    awaytime;
+	float    rope_length;
 	float    min_pull;
 	float    max_pull;
 	float    pull_time;
