@@ -100,6 +100,9 @@ typedef struct {
 	float    pull_time;
 	float    hold_blend;
 	float    reel_blend;
+	int      input_mode;
+	qbool    hold_washeld;
+	qbool    reel_washeld;
 } hook_state_t;
 
 // player_state_t is the information needed by a player entity
