@@ -73,8 +73,8 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	pmove.hook_min_pull = from->hookstate.min_pull;
 	pmove.hook_max_pull = from->hookstate.max_pull;
 	pmove.hook_pull_time = from->hookstate.pull_time;
-	pmove.hook_back_blend = from->hookstate.back_blend;
-	pmove.hook_forward_blend = from->hookstate.forward_blend;
+	pmove.hook_hold_blend = from->hookstate.hold_blend;
+	pmove.hook_reel_blend = from->hookstate.reel_blend;
 
 #ifdef JSS_CAM
 	if (cam_lockdir.value) {
@@ -106,8 +106,8 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	to->hookstate.tension = pmove.hook_tension;
 	to->hookstate.awaytime = pmove.hook_awaytime;
 	to->hookstate.pull_time = pmove.hook_pull_time;
-	to->hookstate.back_blend = pmove.hook_back_blend;
-	to->hookstate.forward_blend = pmove.hook_forward_blend;
+	to->hookstate.hold_blend = pmove.hook_hold_blend;
+	to->hookstate.reel_blend = pmove.hook_reel_blend;
 
 	to->weaponframe = from->weaponframe;
 }

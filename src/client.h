@@ -98,8 +98,8 @@ typedef struct {
 	float    min_pull;
 	float    max_pull;
 	float    pull_time;
-	float    back_blend;
-	float    forward_blend;
+	float    hold_blend;
+	float    reel_blend;
 } hook_state_t;
 
 // player_state_t is the information needed by a player entity
