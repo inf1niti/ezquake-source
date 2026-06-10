@@ -4273,6 +4273,37 @@ static void CL_ReadHookStateCoords(vec3_t origin)
 	origin[2] = MSG_ReadCoord();
 }
 
+static void CL_ParseHookOwnerState(hook_state_t *hookstate)
+{
+	int flags;
+
+	hookstate->state = MSG_ReadByte();
+	hookstate->flags = MSG_ReadByte();
+	if (hookstate->state < mvd_hook_inactive || hookstate->state > mvd_hook_cooldown) {
+		Host_Error("CL_ParseHookOwnerState: invalid hook state %d", hookstate->state);
+	}
+	CL_ReadHookStateCoords(hookstate->anchor);
+	VectorCopy(hookstate->anchor, hookstate->origin);
+	hookstate->hook_time = MSG_ReadShort() / 1000.0f;
+	hookstate->initial_length = MSG_ReadShort();
+	hookstate->initial_radial_speed = MSG_ReadShort();
+	hookstate->initial_tangential_speed = MSG_ReadShort();
+	hookstate->initial_speed = MSG_ReadShort();
+	hookstate->tension = MSG_ReadShort() / 1000.0f;
+	hookstate->awaytime = MSG_ReadShort() / 1000.0f;
+	hookstate->rope_length = MSG_ReadShort();
+	hookstate->min_pull = MSG_ReadShort();
+	hookstate->max_pull = MSG_ReadShort();
+	hookstate->pull_time = MSG_ReadShort() / 1000.0f;
+	hookstate->hold_blend = MSG_ReadShort() / 1000.0f;
+	hookstate->reel_blend = MSG_ReadShort() / 1000.0f;
+	hookstate->reel_pull_blend = MSG_ReadShort() / 1000.0f;
+	hookstate->input_mode = MSG_ReadByte();
+	flags = MSG_ReadByte();
+	hookstate->hold_washeld = (flags & 1) != 0;
+	hookstate->reel_washeld = (flags & 2) != 0;
+}
+
 static void CL_ParseHookState(void)
 {
 	int i;
@@ -4290,13 +4321,21 @@ static void CL_ParseHookState(void)
 
 		playernum = MSG_ReadByte();
 		record_type = MSG_ReadByte();
-		if (record_type < mvd_hook_record_full || record_type > mvd_hook_record_clear) {
+		if (record_type < mvd_hook_record_full || record_type > mvd_hook_record_owner_state) {
 			Host_Error("CL_ParseHookState: invalid hook record type %d", record_type);
 		}
 
 		hookstate = (playernum < MAX_CLIENTS) ? &frame->hookstate[playernum] : &ignored;
 		if (record_type == mvd_hook_record_clear) {
 			memset(hookstate, 0, sizeof(*hookstate));
+			if (playernum < MAX_CLIENTS) {
+				frame->playerstate[playernum].hookstate = *hookstate;
+			}
+			continue;
+		}
+
+		if (record_type == mvd_hook_record_owner_state) {
+			CL_ParseHookOwnerState(hookstate);
 			if (playernum < MAX_CLIENTS) {
 				frame->playerstate[playernum].hookstate = *hookstate;
 			}
