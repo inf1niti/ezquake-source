@@ -100,6 +100,7 @@ typedef struct {
 	float    max_pull;
 	float    pull_time;
 	float    hold_blend;
+	float    hold_length_blend;
 	float    reel_blend;
 	float    reel_pull_blend;
 	int      input_mode;

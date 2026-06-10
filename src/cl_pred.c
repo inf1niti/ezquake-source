@@ -75,6 +75,7 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	pmove.hook_max_pull = from->hookstate.max_pull;
 	pmove.hook_pull_time = from->hookstate.pull_time;
 	pmove.hook_hold_blend = from->hookstate.hold_blend;
+	pmove.hook_hold_length_blend = from->hookstate.hold_length_blend;
 	pmove.hook_reel_blend = from->hookstate.reel_blend;
 	pmove.hook_reel_pull_blend = from->hookstate.reel_pull_blend;
 	pmove.hook_input_mode = from->hookstate.input_mode;
@@ -113,6 +114,7 @@ void CL_PredictUsercmd (player_state_t *from, player_state_t *to, usercmd_t *u) 
 	to->hookstate.rope_length = pmove.hook_rope_length;
 	to->hookstate.pull_time = pmove.hook_pull_time;
 	to->hookstate.hold_blend = pmove.hook_hold_blend;
+	to->hookstate.hold_length_blend = pmove.hook_hold_length_blend;
 	to->hookstate.reel_blend = pmove.hook_reel_blend;
 	to->hookstate.reel_pull_blend = pmove.hook_reel_pull_blend;
 	to->hookstate.input_mode = pmove.hook_input_mode;

@@ -4296,6 +4296,7 @@ static void CL_ParseHookOwnerState(hook_state_t *hookstate)
 	hookstate->max_pull = MSG_ReadShort();
 	hookstate->pull_time = MSG_ReadShort() / 1000.0f;
 	hookstate->hold_blend = MSG_ReadShort() / 1000.0f;
+	hookstate->hold_length_blend = MSG_ReadShort() / 1000.0f;
 	hookstate->reel_blend = MSG_ReadShort() / 1000.0f;
 	hookstate->reel_pull_blend = MSG_ReadShort() / 1000.0f;
 	hookstate->input_mode = MSG_ReadByte();
